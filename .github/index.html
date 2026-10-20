@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 爆量突破與風控選股神器</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --stock-up: #ff4d4d; /* 台灣習慣：紅漲 */
+            --stock-down: #2ecc71; /* 綠跌 */
+            --accent-yellow: #f1c40f;
+            --border-color: #2c2c2c;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 15px;
+        }
+        .header {
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .header h1 { margin: 0; font-size: 20px; color: var(--text-primary); }
+        .update-time { font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
+        
+        .stock-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 5px solid var(--stock-up);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .stock-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .price-badge {
+            background-color: var(--stock-up);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .grid-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background-color: #262626;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .info-item { display: flex; flex-direction: column; }
+        .info-label { font-size: 12px; color: var(--text-secondary); }
+        .info-value { font-size: 16px; font-weight: bold; margin-top: 2px; }
+        .entry-val { color: var(--accent-yellow); }
+        .stop-val { color: var(--stock-down); }
+        .target-val { color: var(--stock-up); }
+        
+        .rule-note {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .no-data { text-align: center; padding: 40px; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📊 AI 飆股風控選股神器</h1>
+        <div class="update-time" id="update-time">讀取中...</div>
+    </div>
+
+    <div id="cards-container"></div>
+
+    <script>
+        async function loadDailyPicks() {
+            try {
+                const response = await fetch('daily_picks.json?t=' + new Date().getTime());
+                const data = await response.json();
+                
+                document.getElementById('update-time').innerText = '最後更新時間：' + data.update_time;
+                const container = document.getElementById('cards-container');
+                container.innerHTML = '';
+
+                if (!data.picks || data.picks.length === 0) {
+                    container.innerHTML = '<div class="no-data">今日盤後無符合突破條件標的，保持耐心觀望！</div>';
+                    return;
+                }
+
+                data.picks.forEach(stock => {
+                    const card = `
+                        <div class="stock-card">
+                            <div class="stock-title">
+                                <span>台股 ${stock.symbol}</span>
+                                <span class="price-badge">收盤: ${stock.close} 元</span>
+                            </div>
+                            <div class="grid-info">
+                                <div class="info-item">
+                                    <span class="info-label">🎯 建議買進價 (回測)</span>
+                                    <span class="info-value entry-val">${stock.suggested_entry} 元</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">🛡️ 防守停損價</span>
+                                    <span class="info-value stop-val">${stock.stop_loss} 元 (-${stock.risk_pct}%)</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">🎯 第一目標價</span>
+                                    <span class="info-value target-val">${stock.target_1} 元 (+${stock.reward_pct}%)</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">🔥 爆量倍數</span>
+                                    <span class="info-value">${stock.volume_ratio} 倍</span>
+                                </div>
+                            </div>
+                            <div class="rule-note">
+                                💡 <b>操作紀律指引：</b> 勿在開盤市價追高，請掛單在 <b>${stock.suggested_entry} 元</b> 附近等拉回；一旦建倉完成，請立即設好 <b>${stock.stop_loss} 元</b> 自動停損單。
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+            } catch (err) {
+                document.getElementById('cards-container').innerHTML = '<div class="no-data">尚未取得今日數據，請確定排程已順利執行。</div>';
+            }
+        }
+
+        loadDailyPicks();
+    </script>
+</body>
+</html>
