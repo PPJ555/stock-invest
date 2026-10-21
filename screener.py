@@ -8,8 +8,8 @@ def send_line_push(message_text):
     透過 LINE Messaging API 發送 Push Message 給個人帳號
     """
     # 讀取在 GitHub Secrets 設定的環境變數
-    access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN")
-    user_id = os.environ.get("LINE_USER_ID")
+    access_token = os.environ.get("BPLYYKmyvJCpM0UsYsKsOEuy3Jgc+AOY61EmVpxf+ZG3lrl8pcXa5sosjhBoVFjxAwV0DvblZlufHS+NfPx1rOdbkdyH0guWvBF+Zw6K0EzixFA9PYOVfYi/M5piiJbeU0TDLm/S1zHb0V00dy0qrAdB04t89/1O/w1cDnyilFU=")
+    user_id = os.environ.get("U660a3a222f70deefa056e5ec612b9bf4")
     
     # 檢查環境變數是否存在
     if not access_token or not user_id:
