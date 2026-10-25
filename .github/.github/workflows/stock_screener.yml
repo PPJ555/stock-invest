@@ -23,7 +23,7 @@ jobs:
           pip install pandas numpy requests
 
       - name: 4. 執行選股與買賣點計算並發送 LINE 通知
-        env:
-          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
-          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
-        run: python screener.py
+  env:
+    LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+    LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+  run: python screener.py
